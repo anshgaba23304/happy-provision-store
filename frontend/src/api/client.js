@@ -31,11 +31,11 @@ export async function getAnalytics(pin) {
   return res.json();
 }
 
-export async function markDelivered(orderId, pin) {
+export async function markDelivered(orderId, pin, billAmount) {
   const res = await fetch(`${API}/orders/${orderId}/deliver`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ adminPin: pin }),
+    body: JSON.stringify({ adminPin: pin, billAmount }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to update');

@@ -153,14 +153,19 @@ public class OrderService {
         return toResponse(order);
     }
 
-    public OrderResponse markDelivered(String id, String pin) {
+    public OrderResponse markDelivered(String id, String pin, Double billAmount) {
         validateAdminPin(pin);
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
+        if (billAmount == null || billAmount <= 0) {
+            throw new IllegalArgumentException("Enter the bill amount to complete this order");
+        }
+
         if (!"delivered".equals(order.getStatus())) {
             order.setStatus("delivered");
             order.setDeliveredAt(Instant.now());
+            order.setEstimatedAmount(billAmount);
             order = orderRepository.save(order);
         }
 

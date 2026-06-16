@@ -76,11 +76,11 @@ public class OrderController {
     @PatchMapping("/orders/{id}/deliver")
     public ResponseEntity<?> deliverOrder(@PathVariable String id, @RequestBody DeliverRequest request) {
         try {
-            return ResponseEntity.ok(orderService.markDelivered(id, request.getAdminPin()));
+            return ResponseEntity.ok(orderService.markDelivered(id, request.getAdminPin(), request.getBillAmount()));
         } catch (SecurityException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(e.getMessage()));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
 
