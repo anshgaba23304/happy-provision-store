@@ -2,54 +2,21 @@
 
 Grocery ordering website for **Happy Provision Store**, Deoband, U.P.
 
+Orders, photos, and analytics are stored in **MongoDB**. Real-time updates use in-app notifications (SSE).
+
 ## Live website deploy
 
-The app runs as **one website**: React frontend + Spring Boot API on a single URL.
+### Deploy on Render
 
-### Deploy on Render (free, recommended)
+1. Push code to GitHub
+2. Create a free **MongoDB Atlas** cluster at [mongodb.com/atlas](https://www.mongodb.com/atlas)
+3. In Atlas: **Database Access** → create user, **Network Access** → allow `0.0.0.0/0`
+4. Copy connection string → `mongodb+srv://user:pass@cluster.../happy-provision-store`
+5. On Render → connect repo → set environment variable:
+   - `MONGODB_URI` = your Atlas connection string
+6. Deploy
 
-1. Push code to GitHub: [anshgaba23304/happy-provision-store](https://github.com/anshgaba23304/happy-provision-store)
-
-2. Go to [render.com](https://render.com) → **New** → **Blueprint** (or Web Service)
-
-3. Connect your GitHub repo `happy-provision-store`
-
-4. Render reads `render.yaml` automatically, or set manually:
-   - **Runtime:** Docker
-   - **Dockerfile path:** `./Dockerfile`
-
-5. Click **Deploy** — you get a URL like:
-   `https://happy-provision-store.onrender.com`
-
-> **Free tier note:** Persistent disks are not available on Render’s free plan. Orders and photos are kept while the app is running, but may be **lost when Render restarts or redeploys** the service. For permanent storage, upgrade to a paid plan and add a disk (see `render-paid.yaml.example`).
-
-### Deploy with Docker (any server)
-
-```bash
-cd happy-provision-store
-docker build -t happy-provision-store .
-docker run -p 8080:8080 \
-  -v happy-store-data:/app/persist \
-  -e STORE_DATA_PATH=/app/persist/data \
-  -e STORE_UPLOAD_PATH=/app/persist/uploads \
-  happy-provision-store
-```
-
-Open **http://localhost:8080**
-
-### Build & run locally (as website)
-
-```bash
-cd happy-provision-store
-./deploy.sh
-cd backend && java -jar target/store-1.0.0.jar
-```
-
-Open **http://localhost:8081**
-
----
-
-## Development (separate frontend + backend)
+### Local development
 
 **Backend:**
 ```bash
@@ -61,14 +28,23 @@ cd backend && mvn spring-boot:run
 cd frontend && npm run dev
 ```
 
-Open **http://localhost:5173**
+Set `MONGODB_URI` in your environment or use local MongoDB on port 27017.
+
+### Production build (single JAR)
+
+```bash
+./deploy.sh
+cd backend && java -jar target/store-1.0.0.jar
+```
 
 ---
 
 ## Admin
 
 - URL: `/admin`
-- Default PIN: `1234` (change in `application.properties`)
+- PIN is set in `application.properties` (`app.admin-pin`) or `APP_ADMIN_PIN` env var
+- **Orders tab** — manage orders, real-time new order alerts
+- **Analytics tab** — daily sales, monthly revenue, order mix, 30-day breakdown
 
 ## Store config
 
@@ -76,20 +52,20 @@ Edit `backend/src/main/resources/application.properties`:
 
 ```properties
 app.store.phones=9557237665
-app.admin-pin=1234
+app.admin-pin=your-secret-pin
 ```
 
 ## Tech stack
 
-- **Frontend:** React, Vite, PWA
-- **Backend:** Java 21, Spring Boot 3, H2
+- **Frontend:** React, Vite, PWA, SSE real-time
+- **Backend:** Java 21, Spring Boot 3, MongoDB, GridFS (images)
 - **Deploy:** Docker, Render
 
 ## Data storage
 
-| Data | Path |
-|------|------|
-| Orders (database) | `STORE_DATA_PATH` → default `./data/` |
-| Grocery photos | `STORE_UPLOAD_PATH` → default `./uploads/` |
+| Data | Storage |
+|------|---------|
+| Orders | MongoDB `orders` collection |
+| Grocery photos | MongoDB GridFS via `/api/images/{id}` |
 
-Back up these folders before redeploying without persistent disk.
+All data persists in your MongoDB cluster across redeploys.

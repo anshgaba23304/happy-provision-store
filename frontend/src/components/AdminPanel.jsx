@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getAdminOrders, markDelivered } from '../api/client';
-import { buildWhatsAppUrl } from '../utils/whatsapp';
 import { useSocket } from '../hooks/useSocket';
 import { requestNotificationPermission, showNotification } from '../utils/notifications';
+import Analytics from './Analytics';
 
 export default function AdminPanel() {
   const [pin, setPin] = useState('');
@@ -11,6 +11,7 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [newOrderAlert, setNewOrderAlert] = useState(null);
+  const [activeTab, setActiveTab] = useState('orders');
 
   const fetchOrders = useCallback(async (loginPin) => {
     const pinToUse = (loginPin ?? pin).trim();
@@ -70,7 +71,7 @@ export default function AdminPanel() {
     try {
       const updated = await markDelivered(orderId, savedPin);
       setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
-      showNotification('Order Delivered', `Order #${orderId} marked as delivered. Customer notified.`);
+      showNotification('Order Updated', `Order #${orderId} marked as complete. Customer notified in app.`);
     } catch (err) {
       setError(err.message);
     }
@@ -102,52 +103,70 @@ export default function AdminPanel() {
 
   const pending = orders.filter((o) => o.status === 'pending');
   const delivered = orders.filter((o) => o.status === 'delivered');
+  const savedPin = sessionStorage.getItem('adminPin') || pin;
 
   return (
     <div className="admin-panel">
       <div className="admin-header">
-        <h1>📋 Order Management</h1>
+        <h1>📋 Store Dashboard</h1>
         <button className="btn btn-outline btn-sm" onClick={() => { sessionStorage.removeItem('adminPin'); setAuthenticated(false); }}>
           Logout
         </button>
       </div>
 
-      {newOrderAlert && (
+      <div className="admin-tabs">
+        <button type="button" className={activeTab === 'orders' ? 'active' : ''} onClick={() => setActiveTab('orders')}>
+          📦 Orders
+        </button>
+        <button type="button" className={activeTab === 'analytics' ? 'active' : ''} onClick={() => setActiveTab('analytics')}>
+          📊 Analytics
+        </button>
+      </div>
+
+      {newOrderAlert && activeTab === 'orders' && (
         <div className="new-order-alert">
           🔔 NEW ORDER: #{newOrderAlert.id} from {newOrderAlert.customerName}!
         </div>
       )}
 
-      <div className="admin-stats">
-        <div className="stat-card pending-stat">
-          <span className="stat-num">{pending.length}</span>
-          <span>Pending</span>
-        </div>
-        <div className="stat-card delivered-stat">
-          <span className="stat-num">{delivered.length}</span>
-          <span>Delivered</span>
-        </div>
-      </div>
+      {activeTab === 'analytics' ? (
+        <Analytics pin={savedPin} />
+      ) : (
+        <>
+          <div className="admin-stats">
+            <div className="stat-card pending-stat">
+              <span className="stat-num">{pending.length}</span>
+              <span>Packing</span>
+            </div>
+            <div className="stat-card delivered-stat">
+              <span className="stat-num">{delivered.length}</span>
+              <span>Completed</span>
+            </div>
+          </div>
 
-      {pending.length > 0 && (
-        <section className="admin-section">
-          <h2>⏳ Pending Orders ({pending.length})</h2>
-          {pending.map((order) => (
-            <OrderCard key={order.id} order={order} onDeliver={handleDeliver} />
-          ))}
-        </section>
+          {pending.length > 0 && (
+            <section className="admin-section">
+              <h2>🥬 Packing Orders ({pending.length})</h2>
+              {pending.map((order) => (
+                <OrderCard key={order.id} order={order} onDeliver={handleDeliver} />
+              ))}
+            </section>
+          )}
+
+          {delivered.length > 0 && (
+            <section className="admin-section">
+              <h2>✅ Completed Orders ({delivered.length})</h2>
+              {delivered.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+            </section>
+          )}
+
+          {orders.length === 0 && <p className="no-orders">No orders yet. Waiting for customers...</p>}
+        </>
       )}
 
-      {delivered.length > 0 && (
-        <section className="admin-section">
-          <h2>✅ Delivered Orders ({delivered.length})</h2>
-          {delivered.map((order) => (
-            <OrderCard key={order.id} order={order} />
-          ))}
-        </section>
-      )}
-
-      {orders.length === 0 && <p className="no-orders">No orders yet. Waiting for customers...</p>}
+      {error && <div className="error-msg">{error}</div>}
     </div>
   );
 }
@@ -158,7 +177,7 @@ function OrderCard({ order, onDeliver }) {
       <div className="order-header">
         <span className="order-id">#{order.id}</span>
         <span className={`status-badge ${order.status}`}>
-          {order.status === 'delivered' ? '✅ Delivered' : '⏳ Pending'}
+          {order.status === 'delivered' ? '✅ Done' : '🥬 Packing'}
         </span>
       </div>
       <div className="order-details">
@@ -186,17 +205,8 @@ function OrderCard({ order, onDeliver }) {
         </button>
       )}
       {order.deliveredAt && (
-        <p className="delivered-time">Delivered: {new Date(order.deliveredAt).toLocaleString('en-IN')}</p>
+        <p className="delivered-time">Completed: {new Date(order.deliveredAt).toLocaleString('en-IN')}</p>
       )}
-      <a
-        href={buildWhatsAppUrl(
-          order.customerPhone,
-          `Hi ${order.customerName}, your order #${order.id} from Happy Provision Store is ready!`
-        )}
-        className="btn btn-whatsapp btn-sm"
-      >
-        💬 WhatsApp Customer
-      </a>
     </div>
   );
 }

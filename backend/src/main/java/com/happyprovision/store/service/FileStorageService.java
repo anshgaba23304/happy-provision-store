@@ -1,23 +1,24 @@
 package com.happyprovision.store.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.mongodb.client.gridfs.model.GridFSFile;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
 public class FileStorageService {
 
-    private final Path uploadPath;
+    private final GridFsTemplate gridFsTemplate;
 
-    public FileStorageService(@Value("${app.upload-dir}") String uploadDir) throws IOException {
-        this.uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-        Files.createDirectories(uploadPath);
+    public FileStorageService(GridFsTemplate gridFsTemplate) {
+        this.gridFsTemplate = gridFsTemplate;
     }
 
     public String store(MultipartFile file) throws IOException {
@@ -32,8 +33,15 @@ public class FileStorageService {
         }
 
         String filename = System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8) + ext;
-        Path target = uploadPath.resolve(filename);
-        Files.copy(file.getInputStream(), target);
-        return "/uploads/" + filename;
+        ObjectId id = gridFsTemplate.store(file.getInputStream(), filename, file.getContentType());
+        return "/api/images/" + id.toHexString();
+    }
+
+    public GridFsResource getImage(String id) {
+        GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(new ObjectId(id))));
+        if (file == null) {
+            return null;
+        }
+        return gridFsTemplate.getResource(file);
     }
 }

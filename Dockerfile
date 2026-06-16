@@ -18,10 +18,7 @@ RUN mvn -B -DskipTests package
 # Stage 3: Run
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-RUN mkdir -p /app/persist/data /app/persist/uploads
 COPY --from=backend-build /app/target/store-1.0.0.jar app.jar
 ENV PORT=8080
-ENV STORE_DATA_PATH=/app/persist/data
-ENV STORE_UPLOAD_PATH=/app/persist/uploads
 EXPOSE 8080
 ENTRYPOINT ["java", "-Xmx512m", "-jar", "app.jar"]

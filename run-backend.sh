@@ -1,3 +1,9 @@
 #!/bin/bash
-cd "$(dirname "$0")/backend"
+cd "$(dirname "$0")"
+if [ -f .env ]; then
+  set -a
+  source .env
+  set +a
+fi
+cd backend
 mvn spring-boot:run

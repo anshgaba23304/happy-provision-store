@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createOrder, getStoreInfo } from '../api/client';
-import { buildWhatsAppMessage, buildWhatsAppUrl } from '../utils/whatsapp';
 import { requestNotificationPermission, showNotification } from '../utils/notifications';
 
 export default function OrderForm() {
@@ -99,10 +98,6 @@ export default function OrderForm() {
 
   if (success) {
     const pickup = !success.orderType || success.orderType === 'pickup';
-    const whatsappMessage = store ? buildWhatsAppMessage(success, store) : '';
-    const whatsappUrl = store?.phones?.[0] && whatsappMessage
-      ? buildWhatsAppUrl(store.phones[0], whatsappMessage)
-      : null;
 
     return (
       <div className="order-success">
@@ -110,6 +105,7 @@ export default function OrderForm() {
           <div className="success-circle">✅</div>
           <h2>Order Placed!</h2>
           <p className="order-id-display">Order ID: <strong>#{success.id}</strong></p>
+          <p>Your order is saved and our team has been notified in real time.</p>
           {pickup ? (
             <>
               <div className="delivery-badge pickup-badge">🏪 Pick up from store</div>
@@ -121,16 +117,12 @@ export default function OrderForm() {
             </>
           ) : (
             <>
-              <p>Tap the button below to send your order to us on WhatsApp.</p>
+              <div className="delivery-badge">🚚 Home Delivery</div>
               {success.freeDelivery && (
-                <div className="delivery-badge">🚚 FREE Home Delivery (₹500+ within 2 km)</div>
+                <p className="free-tag">🎉 FREE home delivery (₹500+ within 2 km)</p>
               )}
+              <p>We&apos;ll pack your groceries and deliver to your address.</p>
             </>
-          )}
-          {whatsappUrl && (
-            <a href={whatsappUrl} className="btn btn-whatsapp btn-lg whatsapp-send-btn">
-              💬 Send Order on WhatsApp
-            </a>
           )}
           <div className="success-actions">
             <Link to="/track" className="btn btn-primary">📦 Track This Order</Link>

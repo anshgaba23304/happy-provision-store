@@ -1,19 +1,18 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getStoreInfo } from '../api/client';
-import { buildWhatsAppUrl } from '../utils/whatsapp';
 
 const STEPS = [
   { num: '1', icon: '📸', title: 'Snap Photos', desc: 'Take pictures of items you need', color: 'step-teal' },
-  { num: '2', icon: '📤', title: 'Send Order', desc: 'We get it on WhatsApp instantly', color: 'step-mango' },
+  { num: '2', icon: '📤', title: 'Place Order', desc: 'Submit directly in the app', color: 'step-mango' },
   { num: '3', icon: '🚚', title: 'We Deliver', desc: 'Fresh groceries at your door', color: 'step-violet' },
 ];
 
 const FEATURES = [
   { icon: '📷', title: 'Photo Orders', desc: 'Snap your list — no typing needed!', tint: 'tint-teal' },
   { icon: '🚚', title: 'Free Delivery', desc: 'Orders above ₹500 within 2 km!', tint: 'tint-mango' },
-  { icon: '💬', title: 'WhatsApp Ready', desc: 'Orders go straight to our chat', tint: 'tint-violet' },
-  { icon: '🔔', title: 'Live Updates', desc: 'Know when your order arrives', tint: 'tint-rose' },
+  { icon: '🔔', title: 'Live Updates', desc: 'Track your order in real time', tint: 'tint-violet' },
+  { icon: '📊', title: 'Store Dashboard', desc: 'Orders & sales analytics for admin', tint: 'tint-rose' },
 ];
 
 export default function Home() {
@@ -54,7 +53,7 @@ export default function Home() {
           <div className="hero-chips">
             <span className="chip">🚚 Free delivery ₹500+</span>
             <span className="chip">📍 Within 2 km</span>
-            <span className="chip">💬 WhatsApp support</span>
+            <span className="chip">🔔 Live order tracking</span>
           </div>
         </div>
       </section>
@@ -130,22 +129,12 @@ export default function Home() {
 
             <div className="visit-store-right">
               <div className="visit-cta-box">
-                <p className="visit-cta-label">Need groceries? Reach us instantly</p>
-                <a
-                  href={buildWhatsAppUrl(store.phones[0], 'Hi! I would like to order groceries from Happy Provision Store.')}
-                  className="btn btn-whatsapp btn-lg visit-wa-btn"
-                >
-                  <span className="wa-icon">💬</span>
-                  <span>
-                    <small>Chat on WhatsApp</small>
-                    <strong>{store.phones[0]}</strong>
-                  </span>
-                </a>
+                <p className="visit-cta-label">Need groceries? Order online or call us</p>
                 <a href={`tel:+91${store.phones[0]}`} className="btn btn-call btn-lg">
-                  📞 Call Now
+                  📞 Call {store.phones[0]}
                 </a>
-                <Link to="/order" className="visit-order-link">
-                  Or place order online →
+                <Link to="/order" className="btn btn-primary btn-lg visit-order-btn">
+                  📸 Place Order Online
                 </Link>
               </div>
 

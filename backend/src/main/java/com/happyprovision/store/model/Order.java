@@ -1,47 +1,29 @@
 package com.happyprovision.store.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "orders")
+@Document(collection = "orders")
 public class Order {
 
     @Id
-    @Column(length = 8)
     private String id;
 
-    @Column(nullable = false)
     private String customerName;
-
-    @Column(nullable = false)
     private String customerPhone;
-
     private String address;
-
     private double estimatedAmount;
-
     private Double distanceKm;
-
     private boolean freeDelivery;
-
-    @ElementCollection
-    @CollectionTable(name = "order_images", joinColumns = @JoinColumn(name = "order_id"))
-    @Column(name = "image_url")
     private List<String> images = new ArrayList<>();
-
-    @Column(nullable = false)
     private String status = "pending";
-
-    @Column(nullable = false)
     private Instant createdAt;
-
     private Instant deliveredAt;
-
     /** pickup = customer collects at store; delivery = home delivery */
-    @Column(nullable = false)
     private String orderType = "pickup";
 
     public String getId() { return id; }
