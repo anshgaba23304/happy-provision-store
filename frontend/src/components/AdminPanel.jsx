@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getAdminOrders, markDelivered } from '../api/client';
+import { buildWhatsAppUrl } from '../utils/whatsapp';
 import { useSocket } from '../hooks/useSocket';
 import { requestNotificationPermission, showNotification } from '../utils/notifications';
 
@@ -11,16 +12,17 @@ export default function AdminPanel() {
   const [error, setError] = useState('');
   const [newOrderAlert, setNewOrderAlert] = useState(null);
 
-  const fetchOrders = useCallback(async () => {
-    const savedPin = sessionStorage.getItem('adminPin') || pin;
-    if (!savedPin) return;
+  const fetchOrders = useCallback(async (loginPin) => {
+    const pinToUse = (loginPin ?? pin).trim();
+    if (!pinToUse) return;
     setLoading(true);
     try {
-      const data = await getAdminOrders(savedPin);
+      const data = await getAdminOrders(pinToUse);
       setOrders(data);
       setAuthenticated(true);
-      sessionStorage.setItem('adminPin', savedPin);
+      sessionStorage.setItem('adminPin', pinToUse);
     } catch {
+      sessionStorage.removeItem('adminPin');
       setError('Invalid PIN');
       setAuthenticated(false);
     } finally {
@@ -60,7 +62,7 @@ export default function AdminPanel() {
   async function handleLogin(e) {
     e.preventDefault();
     setError('');
-    await fetchOrders();
+    await fetchOrders(pin.trim());
   }
 
   async function handleDeliver(orderId) {
@@ -82,8 +84,10 @@ export default function AdminPanel() {
         <form onSubmit={handleLogin} className="login-form">
           <input
             type="password"
+            inputMode="numeric"
+            autoComplete="off"
             value={pin}
-            onChange={(e) => setPin(e.target.value)}
+            onChange={(e) => setPin(e.target.value.trim())}
             placeholder="Admin PIN"
             required
           />
@@ -92,7 +96,6 @@ export default function AdminPanel() {
           </button>
         </form>
         {error && <div className="error-msg">{error}</div>}
-        <p className="pin-hint">Default PIN: 1234 (change in application.properties)</p>
       </div>
     );
   }
@@ -186,10 +189,11 @@ function OrderCard({ order, onDeliver }) {
         <p className="delivered-time">Delivered: {new Date(order.deliveredAt).toLocaleString('en-IN')}</p>
       )}
       <a
-        href={`https://wa.me/91${order.customerPhone}?text=${encodeURIComponent(`Hi ${order.customerName}, your order #${order.id} from Happy Provision Store is ready!`)}`}
+        href={buildWhatsAppUrl(
+          order.customerPhone,
+          `Hi ${order.customerName}, your order #${order.id} from Happy Provision Store is ready!`
+        )}
         className="btn btn-whatsapp btn-sm"
-        target="_blank"
-        rel="noreferrer"
       >
         💬 WhatsApp Customer
       </a>

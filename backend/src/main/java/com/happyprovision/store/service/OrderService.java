@@ -181,7 +181,7 @@ public class OrderService {
     }
 
     private void validateAdminPin(String pin) {
-        if (pin == null || !adminPin.equals(pin)) {
+        if (pin == null || !adminPin.equals(pin.trim())) {
             throw new SecurityException("Invalid admin PIN");
         }
     }
