@@ -4,6 +4,16 @@ import { useSocket } from '../hooks/useSocket';
 import { requestNotificationPermission, showNotification } from '../utils/notifications';
 import Analytics from './Analytics';
 
+function ImageLightbox({ src, onClose }) {
+  if (!src) return null;
+  return (
+    <div className="image-lightbox" onClick={onClose} role="dialog" aria-label="Grocery photo">
+      <button type="button" className="lightbox-close" onClick={onClose} aria-label="Close">✕</button>
+      <img src={src} alt="Grocery item" onClick={(e) => e.stopPropagation()} />
+    </div>
+  );
+}
+
 export default function AdminPanel() {
   const [pin, setPin] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
@@ -12,6 +22,7 @@ export default function AdminPanel() {
   const [error, setError] = useState('');
   const [newOrderAlert, setNewOrderAlert] = useState(null);
   const [activeTab, setActiveTab] = useState('orders');
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   const fetchOrders = useCallback(async (loginPin) => {
     const pinToUse = (loginPin ?? pin).trim();
@@ -148,7 +159,7 @@ export default function AdminPanel() {
             <section className="admin-section">
               <h2>🥬 Packing Orders ({pending.length})</h2>
               {pending.map((order) => (
-                <OrderCard key={order.id} order={order} onDeliver={handleDeliver} />
+                <OrderCard key={order.id} order={order} onDeliver={handleDeliver} onImageClick={setLightboxImage} />
               ))}
             </section>
           )}
@@ -157,7 +168,7 @@ export default function AdminPanel() {
             <section className="admin-section">
               <h2>✅ Completed Orders ({delivered.length})</h2>
               {delivered.map((order) => (
-                <OrderCard key={order.id} order={order} />
+                <OrderCard key={order.id} order={order} onImageClick={setLightboxImage} />
               ))}
             </section>
           )}
@@ -167,11 +178,13 @@ export default function AdminPanel() {
       )}
 
       {error && <div className="error-msg">{error}</div>}
+
+      <ImageLightbox src={lightboxImage} onClose={() => setLightboxImage(null)} />
     </div>
   );
 }
 
-function OrderCard({ order, onDeliver }) {
+function OrderCard({ order, onDeliver, onImageClick }) {
   return (
     <div className={`admin-order-card status-${order.status}`}>
       <div className="order-header">
@@ -194,9 +207,15 @@ function OrderCard({ order, onDeliver }) {
       </div>
       <div className="order-images">
         {order.images.map((img, i) => (
-          <a key={i} href={img} target="_blank" rel="noreferrer">
+          <button
+            key={i}
+            type="button"
+            className="order-image-btn"
+            onClick={() => onImageClick?.(img)}
+            aria-label={`View grocery photo ${i + 1}`}
+          >
             <img src={img} alt={`Grocery ${i + 1}`} />
-          </a>
+          </button>
         ))}
       </div>
       {order.status === 'pending' && onDeliver && (

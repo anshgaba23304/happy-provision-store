@@ -129,13 +129,24 @@ export default function Home() {
 
             <div className="visit-store-right">
               <div className="visit-cta-box">
-                <p className="visit-cta-label">Need groceries? Order online or call us</p>
-                <a href={`tel:+91${store.phones[0]}`} className="btn btn-call btn-lg">
-                  📞 Call {store.phones[0]}
-                </a>
-                <Link to="/order" className="btn btn-primary btn-lg visit-order-btn">
-                  📸 Place Order Online
-                </Link>
+                <p className="visit-cta-label">Need groceries?</p>
+                <p className="visit-cta-sub">Order online or call us directly</p>
+                <div className="visit-cta-actions">
+                  <Link to="/order" className="visit-action-btn visit-action-primary">
+                    <span className="visit-action-icon">📸</span>
+                    <span className="visit-action-text">
+                      <strong>Place Order Online</strong>
+                      <small>Upload grocery photos</small>
+                    </span>
+                  </Link>
+                  <a href={`tel:+91${store.phones[0]}`} className="visit-action-btn visit-action-call">
+                    <span className="visit-action-icon">📞</span>
+                    <span className="visit-action-text">
+                      <strong>Call {store.phones[0]}</strong>
+                      <small>Talk to our team</small>
+                    </span>
+                  </a>
+                </div>
               </div>
 
               <div className="visit-map-hint">

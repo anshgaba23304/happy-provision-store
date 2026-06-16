@@ -1,9 +1,6 @@
 package com.happyprovision.store.service;
 
-import com.mongodb.client.gridfs.model.GridFSFile;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
@@ -38,10 +35,13 @@ public class FileStorageService {
     }
 
     public GridFsResource getImage(String id) {
-        GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(new ObjectId(id))));
-        if (file == null) {
+        if (id == null || !ObjectId.isValid(id)) {
             return null;
         }
-        return gridFsTemplate.getResource(file);
+        try {
+            return gridFsTemplate.getResource(id);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

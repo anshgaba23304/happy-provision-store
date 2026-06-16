@@ -1,7 +1,7 @@
 package com.happyprovision.store.controller;
 
 import com.happyprovision.store.service.FileStorageService;
-import org.springframework.core.io.Resource;
+import org.bson.types.ObjectId;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 @RestController
 @RequestMapping("/api/images")
@@ -22,20 +25,33 @@ public class ImageController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Resource> getImage(@PathVariable String id) {
-        GridFsResource resource = fileStorageService.getImage(id);
-        if (resource == null || !resource.exists()) {
+    public ResponseEntity<byte[]> getImage(@PathVariable String id) {
+        if (!ObjectId.isValid(id)) {
             return ResponseEntity.notFound().build();
         }
 
-        String contentType = resource.getContentType();
-        if (contentType == null) {
-            contentType = MediaType.IMAGE_JPEG_VALUE;
+        GridFsResource resource = fileStorageService.getImage(id);
+        if (resource == null) {
+            return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CACHE_CONTROL, "public, max-age=31536000")
-                .body(resource);
+        try (InputStream in = resource.getInputStream()) {
+            byte[] bytes = in.readAllBytes();
+            if (bytes.length == 0) {
+                return ResponseEntity.notFound().build();
+            }
+
+            String contentType = resource.getContentType();
+            MediaType mediaType = (contentType != null && !contentType.isBlank())
+                    ? MediaType.parseMediaType(contentType)
+                    : MediaType.IMAGE_JPEG;
+
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .header(HttpHeaders.CACHE_CONTROL, "public, max-age=31536000")
+                    .body(bytes);
+        } catch (IOException | IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
