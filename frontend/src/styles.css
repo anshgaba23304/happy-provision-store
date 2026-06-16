@@ -1800,77 +1800,80 @@ body {
 
 .admin-order-card { margin-bottom: 1rem; }
 
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-version {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--teal);
+  background: #ecfdf5;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--teal);
+}
+
 .admin-hint {
   margin: -0.5rem 0 1rem;
   font-size: 0.9rem;
   color: var(--slate);
 }
 
-.complete-order-btn {
-  width: 100%;
-  margin-top: 0.85rem;
+.bill-entry-box {
+  margin: 0.75rem 0;
+  padding: 1rem;
+  border: 3px solid var(--teal);
+  border-radius: 12px;
+  background: #ecfdf5;
+}
+
+.bill-entry-title {
+  margin: 0 0 0.65rem;
+  font-weight: 800;
+  color: var(--teal-dark);
   font-size: 1rem;
 }
 
-.complete-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  background: rgba(15, 23, 42, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.complete-modal {
-  position: relative;
-  width: min(100%, 420px);
-  background: var(--white);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-  border: 2px solid var(--teal);
-}
-
-.complete-modal h2 {
-  margin: 0 0 0.25rem;
-  color: var(--teal-dark);
-  font-size: 1.35rem;
-}
-
-.complete-modal-sub {
-  margin: 0 0 1rem;
-  color: var(--slate);
-  font-size: 0.9rem;
-}
-
-.complete-modal-form label {
-  display: block;
-  font-weight: 700;
-  margin-bottom: 0.4rem;
-  color: var(--teal-dark);
-}
-
-.complete-modal-form input {
-  width: 100%;
-  padding: 0.85rem;
-  border: 2px solid var(--teal);
-  border-radius: 10px;
-  font-size: 1.25rem;
-  font-weight: 800;
-  margin-bottom: 0.75rem;
-}
-
-.complete-modal-actions {
+.bill-entry-row {
   display: flex;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  align-items: stretch;
 }
 
-.complete-modal-actions .btn {
+.bill-currency {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--teal-dark);
+  padding: 0 0.25rem;
+}
+
+.bill-entry-row input {
   flex: 1;
-  min-width: 120px;
+  min-width: 0;
+  padding: 0.75rem;
+  border: 2px solid var(--teal);
+  border-radius: 10px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  background: var(--white);
+}
+
+.bill-entry-row .btn-success {
+  white-space: nowrap;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.bill-amount-display {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--teal-dark);
+  font-weight: 700;
 }
 
 .complete-order-row {

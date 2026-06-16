@@ -33,8 +33,22 @@ export default defineConfig({
         ],
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         mode: 'development',
         globPatterns: ['**/*.{js,css,html,ico,svg,mp3}'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/],
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages',
+              expiration: { maxEntries: 5, maxAgeSeconds: 60 * 60 },
+            },
+          },
+        ],
       },
     }),
   ],

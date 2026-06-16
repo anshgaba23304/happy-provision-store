@@ -4,65 +4,7 @@ import { useSocket } from '../hooks/useSocket';
 import { requestNotificationPermission, showNotification } from '../utils/notifications';
 import Analytics from './Analytics';
 
-function CompleteOrderModal({ order, onClose, onConfirm, error }) {
-  const [billAmount, setBillAmount] = useState('');
-
-  if (!order) return null;
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    const amount = Number(billAmount);
-    if (!amount || amount <= 0) return;
-    onConfirm(order.id, amount);
-  }
-
-  const isDelivery = order.orderType === 'delivery';
-
-  return (
-    <div className="complete-modal-backdrop" onClick={onClose} role="presentation">
-      <div
-        className="complete-modal"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-labelledby="complete-order-title"
-      >
-        <button type="button" className="lightbox-close" onClick={onClose} aria-label="Close">✕</button>
-        <h2 id="complete-order-title">💰 Bill amount</h2>
-        <p className="complete-modal-sub">
-          Order #{order.id} · {order.customerName}
-        </p>
-        <form onSubmit={handleSubmit} className="complete-modal-form">
-          <label htmlFor="bill-amount-input">Enter total bill amount (₹)</label>
-          <input
-            id="bill-amount-input"
-            type="number"
-            min="1"
-            step="1"
-            inputMode="decimal"
-            placeholder="e.g. 450"
-            value={billAmount}
-            onChange={(e) => setBillAmount(e.target.value)}
-            autoFocus
-            autoComplete="off"
-            required
-          />
-          {error && <div className="error-msg">{error}</div>}
-          <div className="complete-modal-actions">
-            <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
-            <button
-              type="submit"
-              className="btn btn-success"
-              disabled={!billAmount || Number(billAmount) <= 0}
-            >
-              {isDelivery ? '✅ Mark as Delivered' : '✅ Mark as Ready for Pickup'}
-            </button>
-          </div>
-        </form>
-        <p className="bill-hint">This amount is saved for daily sales &amp; analytics.</p>
-      </div>
-    </div>
-  );
-}
+const ADMIN_UI_VERSION = '3';
 
 function ImageLightbox({ src, onClose }) {
   if (!src) return null;
@@ -83,8 +25,6 @@ export default function AdminPanel() {
   const [newOrderAlert, setNewOrderAlert] = useState(null);
   const [activeTab, setActiveTab] = useState('orders');
   const [lightboxImage, setLightboxImage] = useState(null);
-  const [completingOrder, setCompletingOrder] = useState(null);
-  const [completeError, setCompleteError] = useState('');
 
   const fetchOrders = useCallback(async (loginPin) => {
     const pinToUse = (loginPin ?? pin).trim();
@@ -141,18 +81,15 @@ export default function AdminPanel() {
 
   async function handleDeliver(orderId, billAmount) {
     const savedPin = sessionStorage.getItem('adminPin') || pin;
-    setCompleteError('');
     try {
       const updated = await markDelivered(orderId, savedPin, billAmount);
       setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
-      setCompletingOrder(null);
       setError('');
       showNotification(
         'Order Updated',
         `Order #${orderId} completed — ₹${billAmount.toLocaleString('en-IN')} added to sales.`,
       );
     } catch (err) {
-      setCompleteError(err.message);
       setError(err.message);
     }
   }
@@ -181,7 +118,7 @@ export default function AdminPanel() {
     );
   }
 
-  const pending = orders.filter((o) => o.status === 'pending');
+  const pending = orders.filter((o) => o.status !== 'delivered');
   const delivered = orders.filter((o) => o.status === 'delivered');
   const savedPin = sessionStorage.getItem('adminPin') || pin;
 
@@ -189,9 +126,12 @@ export default function AdminPanel() {
     <div className="admin-panel">
       <div className="admin-header">
         <h1>📋 Store Dashboard</h1>
-        <button className="btn btn-outline btn-sm" onClick={() => { sessionStorage.removeItem('adminPin'); setAuthenticated(false); }}>
-          Logout
-        </button>
+        <div className="admin-header-actions">
+          <span className="admin-version">v{ADMIN_UI_VERSION}</span>
+          <button className="btn btn-outline btn-sm" onClick={() => { sessionStorage.removeItem('adminPin'); setAuthenticated(false); }}>
+            Logout
+          </button>
+        </div>
       </div>
 
       <div className="admin-tabs">
@@ -227,12 +167,14 @@ export default function AdminPanel() {
           {pending.length > 0 && (
             <section className="admin-section">
               <h2>🥬 Packing Orders ({pending.length})</h2>
-              <p className="admin-hint">Tap <strong>Complete Order</strong> on each order and enter the bill amount.</p>
+              <p className="admin-hint">
+                Enter the <strong>bill amount (₹)</strong> in the green box on each order, then tap complete.
+              </p>
               {pending.map((order) => (
                 <OrderCard
                   key={order.id}
                   order={order}
-                  onComplete={() => { setCompleteError(''); setCompletingOrder(order); }}
+                  onDeliver={handleDeliver}
                   onImageClick={setLightboxImage}
                 />
               ))}
@@ -255,18 +197,20 @@ export default function AdminPanel() {
       {error && <div className="error-msg">{error}</div>}
 
       <ImageLightbox src={lightboxImage} onClose={() => setLightboxImage(null)} />
-      <CompleteOrderModal
-        order={completingOrder}
-        onClose={() => { setCompletingOrder(null); setCompleteError(''); }}
-        onConfirm={handleDeliver}
-        error={completeError}
-      />
     </div>
   );
 }
 
-function OrderCard({ order, onComplete, onImageClick }) {
+function OrderCard({ order, onDeliver, onImageClick }) {
+  const [billAmount, setBillAmount] = useState('');
   const isPending = order.status !== 'delivered';
+
+  function handleComplete(e) {
+    e.preventDefault();
+    const amount = Number(billAmount);
+    if (!amount || amount <= 0) return;
+    onDeliver?.(order.id, amount);
+  }
 
   return (
     <div className={`admin-order-card status-${order.status}`}>
@@ -276,6 +220,35 @@ function OrderCard({ order, onComplete, onImageClick }) {
           {order.status === 'delivered' ? '✅ Done' : '🥬 Packing'}
         </span>
       </div>
+
+      {isPending && onDeliver && (
+        <form className="bill-entry-box" onSubmit={handleComplete}>
+          <p className="bill-entry-title">💰 Bill amount (required)</p>
+          <div className="bill-entry-row">
+            <span className="bill-currency">₹</span>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              inputMode="decimal"
+              placeholder="Enter amount e.g. 450"
+              value={billAmount}
+              onChange={(e) => setBillAmount(e.target.value)}
+              autoComplete="off"
+              aria-label="Bill amount in rupees"
+              required
+            />
+            <button
+              type="submit"
+              className="btn btn-success"
+              disabled={!billAmount || Number(billAmount) <= 0}
+            >
+              {order.orderType === 'delivery' ? 'Deliver' : 'Complete'}
+            </button>
+          </div>
+        </form>
+      )}
+
       <div className="order-details">
         <p>
           <strong>{order.orderType === 'delivery' ? '📦' : '🏪'}</strong>
@@ -300,11 +273,6 @@ function OrderCard({ order, onComplete, onImageClick }) {
           </button>
         ))}
       </div>
-      {isPending && onComplete && (
-        <button type="button" className="btn btn-success btn-block complete-order-btn" onClick={onComplete}>
-          💰 Complete Order — Enter Bill Amount
-        </button>
-      )}
       {order.status === 'delivered' && order.estimatedAmount > 0 && (
         <p className="bill-amount-display">
           <strong>💰 Bill:</strong> ₹{order.estimatedAmount.toLocaleString('en-IN')}
