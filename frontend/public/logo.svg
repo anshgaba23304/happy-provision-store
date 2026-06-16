@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <linearGradient id="hps-bg" x1="8" y1="8" x2="112" y2="112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0D9488"/>
+      <stop offset="1" stop-color="#14B8A6"/>
+    </linearGradient>
+    <linearGradient id="hps-basket" x1="30" y1="42" x2="90" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E6FFFA"/>
+    </linearGradient>
+    <linearGradient id="hps-sun" x1="78" y1="18" x2="102" y2="42" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFC078"/>
+      <stop offset="1" stop-color="#FF9F43"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect x="4" y="4" width="112" height="112" rx="28" fill="url(#hps-bg)"/>
+  <rect x="4" y="4" width="112" height="112" rx="28" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="2"/>
+
+  <!-- Happy sun dot -->
+  <circle cx="88" cy="32" r="14" fill="url(#hps-sun)"/>
+  <circle cx="88" cy="32" r="14" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.5"/>
+
+  <!-- Basket handles -->
+  <path d="M42 46C42 36 50 30 60 30C70 30 78 36 78 46" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+  <path d="M42 46C42 36 50 30 60 30C70 30 78 36 78 46" stroke="#0F766E" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+
+  <!-- Basket body -->
+  <path d="M28 48H92L86 86C86 92 80 96 60 96C40 96 34 92 34 86L28 48Z" fill="url(#hps-basket)"/>
+  <path d="M28 48H92L86 86C86 92 80 96 60 96C40 96 34 92 34 86L28 48Z" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>
+
+  <!-- Basket weave -->
+  <path d="M38 56H82M36 68H84M38 80H82" stroke="#0D9488" stroke-width="2.2" stroke-linecap="round" opacity="0.35"/>
+
+  <!-- Happy smile -->
+  <path d="M46 74C52 80 68 80 74 74" stroke="#FF9F43" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Fresh leaf -->
+  <path d="M60 58C56 52 48 50 46 56C48 62 56 64 60 58Z" fill="#22C55E"/>
+  <path d="M60 58L60 64" stroke="#15803D" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

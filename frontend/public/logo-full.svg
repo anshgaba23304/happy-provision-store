@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none">
+  <defs>
+    <linearGradient id="mark-bg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0D9488"/>
+      <stop offset="1" stop-color="#14B8A6"/>
+    </linearGradient>
+    <linearGradient id="mark-basket" x1="18" y1="28" x2="62" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E6FFFA"/>
+    </linearGradient>
+    <linearGradient id="mark-sun" x1="52" y1="10" x2="68" y2="26" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFC078"/>
+      <stop offset="1" stop-color="#FF9F43"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon mark -->
+  <rect x="2" y="2" width="76" height="76" rx="20" fill="url(#mark-bg)"/>
+  <circle cx="58" cy="22" r="9" fill="url(#mark-sun)"/>
+  <path d="M28 30C28 24 33 20 40 20C47 20 52 24 52 30" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M18 32H62L58 58C58 62 54 64 40 64C26 64 22 62 22 58L18 32Z" fill="url(#mark-basket)" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M30 74C34 78 46 78 50 74" stroke="#FF9F43" stroke-width="3" stroke-linecap="round"/>
+  <path d="M40 42C37 38 32 37 31 41C32 45 37 46 40 42Z" fill="#22C55E"/>
+
+  <!-- Wordmark -->
+  <text x="92" y="36" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="22" font-weight="800" fill="#0F766E">Happy Provision</text>
+  <text x="92" y="58" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="13" font-weight="600" fill="#64748B">Store · Deoband</text>
+</svg>

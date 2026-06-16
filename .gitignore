@@ -1,0 +1,12 @@
+node_modules/
+uploads/*
+!uploads/.gitkeep
+data/
+backend/target/
+dist/
+.DS_Store
+*.log
+.env
+orders.json
+backend/package-lock.json
+backend/node_modules/
