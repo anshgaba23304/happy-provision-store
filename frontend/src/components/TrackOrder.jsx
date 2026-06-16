@@ -5,8 +5,8 @@ import { showNotification, requestNotificationPermission } from '../utils/notifi
 
 const TRACK_STEPS = [
   { key: 'placed', label: 'Order Placed', icon: '📝' },
-  { key: 'pending', label: 'Preparing', icon: '🛒' },
-  { key: 'delivered', label: 'Delivered', icon: '✅' },
+  { key: 'pending', label: 'Packing Groceries', icon: '🥬' },
+  { key: 'delivered', label: 'Ready / Delivered', icon: '✅' },
 ];
 
 function OrderTimeline({ status }) {
@@ -82,7 +82,7 @@ export default function TrackOrder() {
         <h3>How Tracking Works</h3>
         <ol>
           <li><strong>Enter your phone number</strong> — the same one you used when placing the order</li>
-          <li><strong>See all your orders</strong> — with status: Pending or Delivered</li>
+          <li><strong>See all your orders</strong> — with status: Packing Groceries or Delivered</li>
           <li><strong>Get notified automatically</strong> — when we mark your order as delivered, you&apos;ll hear a sound & get a notification (allow notifications when asked)</li>
         </ol>
       </div>
@@ -118,7 +118,9 @@ export default function TrackOrder() {
             <div className="order-header">
               <span className="order-id">#{order.id}</span>
               <span className={`status-badge ${order.status}`}>
-                {order.status === 'delivered' ? '✅ Delivered' : '⏳ Pending'}
+                {order.status === 'delivered'
+                  ? (order.orderType === 'delivery' ? '✅ Delivered' : '✅ Ready for Pickup')
+                  : '🥬 Packing Groceries'}
               </span>
             </div>
 

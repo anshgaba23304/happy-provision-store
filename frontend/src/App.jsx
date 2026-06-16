@@ -5,10 +5,12 @@ import Home from './components/Home';
 import OrderForm from './components/OrderForm';
 import TrackOrder from './components/TrackOrder';
 import AdminPanel from './components/AdminPanel';
+import InstallPrompt from './components/InstallPrompt';
 
 export default function App() {
   return (
     <div className="app">
+      <InstallPrompt />
       <Header />
       <main className="main">
         <Routes>

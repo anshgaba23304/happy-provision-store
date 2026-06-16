@@ -1,3 +1,14 @@
+export function isIOS() {
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+}
+
+export function isMobile() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 export function buildWhatsAppMessage(order, store) {
   const isPickup = !order.orderType || order.orderType === 'pickup';
   const lines = [
@@ -6,9 +17,7 @@ export function buildWhatsAppMessage(order, store) {
     `📋 Order ID: *${order.id}*`,
     `👤 Name: ${order.customerName}`,
     `📞 Phone: ${order.customerPhone}`,
-    isPickup
-      ? `🏪 *PICK UP AT STORE*`
-      : `🚚 *HOME DELIVERY*`,
+    isPickup ? `🏪 *PICK UP AT STORE*` : `🚚 *HOME DELIVERY*`,
     !isPickup && order.address ? `📍 Address: ${order.address}` : '',
     isPickup && store?.address ? `📍 Store: ${store.address}` : '',
     order.estimatedAmount ? `💰 Est. Amount: ₹${order.estimatedAmount}` : '',
@@ -23,13 +32,25 @@ export function buildWhatsAppMessage(order, store) {
   return lines.join('\n');
 }
 
-export function openWhatsApp(phone, message) {
-  const url = `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank');
+export function buildWhatsAppUrl(phone, message) {
+  const cleanPhone = String(phone).replace(/\D/g, '').slice(-10);
+  const text = encodeURIComponent(message);
+  if (isIOS()) {
+    return `https://api.whatsapp.com/send?phone=91${cleanPhone}&text=${text}`;
+  }
+  return `https://wa.me/91${cleanPhone}?text=${text}`;
 }
 
-export function openWhatsAppToAllStores(phones, message) {
-  phones.forEach((phone, i) => {
-    setTimeout(() => openWhatsApp(phone, message), i * 500);
-  });
+export function openWhatsApp(phone, message) {
+  const url = buildWhatsAppUrl(phone, message);
+  if (isMobile()) {
+    window.location.assign(url);
+  } else {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+}
+
+export function openWhatsAppToStore(phones, message) {
+  const phone = phones?.[0];
+  if (phone) openWhatsApp(phone, message);
 }

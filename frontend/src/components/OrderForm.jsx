@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createOrder, getStoreInfo } from '../api/client';
-import { buildWhatsAppMessage, openWhatsAppToAllStores } from '../utils/whatsapp';
+import { buildWhatsAppMessage, buildWhatsAppUrl } from '../utils/whatsapp';
 import { requestNotificationPermission, showNotification } from '../utils/notifications';
 
 export default function OrderForm() {
@@ -35,12 +35,14 @@ export default function OrderForm() {
 
   function handleImageChange(e) {
     const files = Array.from(e.target.files);
+    if (!files.length) return;
     setImages((prev) => [...prev, ...files].slice(0, 10));
     files.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (ev) => setPreviews((prev) => [...prev, ev.target.result].slice(0, 10));
       reader.readAsDataURL(file);
     });
+    e.target.value = '';
   }
 
   function removeImage(idx) {
@@ -71,11 +73,6 @@ export default function OrderForm() {
       const order = await createOrder(formData);
       setSuccess(order);
 
-      const message = buildWhatsAppMessage(order, store);
-      if (store?.phones) {
-        openWhatsAppToAllStores(store.phones, message);
-      }
-
       showNotification(
         'Order Placed! 🎉',
         `Your order #${order.id} has been sent to Happy Provision Store.`
@@ -102,6 +99,11 @@ export default function OrderForm() {
 
   if (success) {
     const pickup = !success.orderType || success.orderType === 'pickup';
+    const whatsappMessage = store ? buildWhatsAppMessage(success, store) : '';
+    const whatsappUrl = store?.phones?.[0] && whatsappMessage
+      ? buildWhatsAppUrl(store.phones[0], whatsappMessage)
+      : null;
+
     return (
       <div className="order-success">
         <div className="success-card animate-in">
@@ -119,11 +121,16 @@ export default function OrderForm() {
             </>
           ) : (
             <>
-              <p>We&apos;ve opened WhatsApp to notify our team. Your order will be delivered to your address.</p>
+              <p>Tap the button below to send your order to us on WhatsApp.</p>
               {success.freeDelivery && (
                 <div className="delivery-badge">🚚 FREE Home Delivery (₹500+ within 2 km)</div>
               )}
             </>
+          )}
+          {whatsappUrl && (
+            <a href={whatsappUrl} className="btn btn-whatsapp btn-lg whatsapp-send-btn">
+              💬 Send Order on WhatsApp
+            </a>
           )}
           <div className="success-actions">
             <Link to="/track" className="btn btn-primary">📦 Track This Order</Link>
@@ -232,12 +239,35 @@ export default function OrderForm() {
         <div className="form-section">
           <h3 className="form-section-title">🛒 Grocery Photos *</h3>
           <div className="image-upload-area">
-            <input type="file" accept="image/*" multiple capture="environment" onChange={handleImageChange} id="img-input" className="hidden-input" />
-            <label htmlFor="img-input" className="upload-zone">
-              <span className="upload-icon">📷</span>
-              <strong>Tap to Take Photo or Upload</strong>
-              <span className="upload-hint">Up to 10 images of items you need</span>
-            </label>
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleImageChange}
+              id="camera-input"
+              className="hidden-input"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+              id="gallery-input"
+              className="hidden-input"
+            />
+            <div className="upload-actions">
+              <label htmlFor="camera-input" className="upload-zone upload-option">
+                <span className="upload-icon">📷</span>
+                <strong>Take Photo</strong>
+                <span className="upload-hint">Use camera</span>
+              </label>
+              <label htmlFor="gallery-input" className="upload-zone upload-option">
+                <span className="upload-icon">🖼️</span>
+                <strong>Choose from Gallery</strong>
+                <span className="upload-hint">Pick saved photos</span>
+              </label>
+            </div>
+            <p className="upload-note">Add up to 10 grocery photos</p>
           </div>
           {previews.length > 0 && (
             <div className="image-previews">
@@ -254,7 +284,7 @@ export default function OrderForm() {
         {error && <div className="error-msg">⚠️ {error}</div>}
 
         <button type="submit" className="btn btn-primary btn-lg btn-send" disabled={loading}>
-          {loading ? '⏳ Sending...' : '📤 Send Order via WhatsApp'}
+          {loading ? '⏳ Placing Order...' : '📤 Place Order'}
         </button>
       </form>
     </div>

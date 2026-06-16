@@ -888,6 +888,24 @@ body {
 
 .hidden-input { display: none; }
 
+.upload-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.upload-option {
+  padding: 1.25rem 0.75rem;
+}
+
+.upload-note {
+  margin-top: 0.75rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--slate-muted);
+  font-weight: 600;
+}
+
 .upload-zone {
   display: flex;
   flex-direction: column;
@@ -1157,6 +1175,71 @@ body {
   flex-direction: column;
   gap: 0.75rem;
   margin-top: 1.5rem;
+}
+
+.whatsapp-send-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 1.25rem;
+  text-decoration: none;
+}
+
+/* ─── iOS install prompt ─── */
+.install-prompt {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: var(--slate);
+  color: var(--white);
+  padding: 1rem 1.25rem;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.install-prompt-body {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding-right: 2rem;
+}
+
+.install-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.install-prompt strong {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.install-prompt p {
+  font-size: 0.88rem;
+  opacity: 0.92;
+}
+
+.install-step {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.install-dismiss {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0.8;
 }
 
 /* ─── Track ─── */

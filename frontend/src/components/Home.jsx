@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getStoreInfo } from '../api/client';
+import { buildWhatsAppUrl } from '../utils/whatsapp';
 
 const STEPS = [
   { num: '1', icon: '📸', title: 'Snap Photos', desc: 'Take pictures of items you need', color: 'step-teal' },
@@ -131,10 +132,8 @@ export default function Home() {
               <div className="visit-cta-box">
                 <p className="visit-cta-label">Need groceries? Reach us instantly</p>
                 <a
-                  href={`https://wa.me/91${store.phones[0]}`}
+                  href={buildWhatsAppUrl(store.phones[0], 'Hi! I would like to order groceries from Happy Provision Store.')}
                   className="btn btn-whatsapp btn-lg visit-wa-btn"
-                  target="_blank"
-                  rel="noreferrer"
                 >
                   <span className="wa-icon">💬</span>
                   <span>
