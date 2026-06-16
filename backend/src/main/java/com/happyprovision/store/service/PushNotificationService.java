@@ -1,7 +1,6 @@
 package com.happyprovision.store.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.happyprovision.store.config.StoreProperties;
 import com.happyprovision.store.config.VapidProperties;
 import com.happyprovision.store.dto.OrderResponse;
 import com.happyprovision.store.dto.PushSubscribeRequest;
@@ -13,6 +12,7 @@ import nl.martijndwars.webpush.Subscription;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Security;
@@ -27,19 +27,19 @@ public class PushNotificationService {
 
     private final PushSubscriptionRepository repository;
     private final VapidProperties vapidProperties;
-    private final StoreProperties storeProperties;
     private final ObjectMapper objectMapper;
+    private final String adminPin;
     private PushService pushService;
 
     public PushNotificationService(
             PushSubscriptionRepository repository,
             VapidProperties vapidProperties,
-            StoreProperties storeProperties,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            @Value("${app.admin-pin}") String adminPin) {
         this.repository = repository;
         this.vapidProperties = vapidProperties;
-        this.storeProperties = storeProperties;
         this.objectMapper = objectMapper;
+        this.adminPin = adminPin;
     }
 
     public String getPublicKey() {
@@ -165,7 +165,7 @@ public class PushNotificationService {
     }
 
     private void validateAdminPin(String pin) {
-        if (pin == null || !storeProperties.getAdminPin().equals(pin.trim())) {
+        if (pin == null || !adminPin.equals(pin.trim())) {
             throw new SecurityException("Invalid admin PIN");
         }
     }
