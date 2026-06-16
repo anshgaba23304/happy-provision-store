@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getOrdersByPhone } from '../api/client';
 import { useSocket } from '../hooks/useSocket';
 import { showNotification, requestNotificationPermission } from '../utils/notifications';
-import { enableNotifications } from '../utils/pushNotifications';
+import { enableNotifications, ensurePushRegistered } from '../utils/pushNotifications';
 import NotificationBanner from './NotificationBanner';
 
 const TRACK_STEPS = [
@@ -49,7 +49,10 @@ export default function TrackOrder() {
 
   useEffect(() => {
     requestNotificationPermission();
-    if (phone.length === 10) fetchOrders(phone);
+    if (phone.length === 10) {
+      fetchOrders(phone);
+      ensurePushRegistered('customer', { phone }).catch(() => {});
+    }
   }, []);
 
   const onOrderDelivered = useCallback((order) => {

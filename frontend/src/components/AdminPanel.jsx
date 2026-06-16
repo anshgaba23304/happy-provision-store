@@ -2,18 +2,41 @@ import { useState, useEffect, useCallback } from 'react';
 import { getAdminOrders, markDelivered } from '../api/client';
 import { useSocket } from '../hooks/useSocket';
 import { requestNotificationPermission, showNotification } from '../utils/notifications';
-import { enableNotifications } from '../utils/pushNotifications';
+import { enableNotifications, ensurePushRegistered } from '../utils/pushNotifications';
+import { downloadGroceryImage, downloadAllOrderImages } from '../utils/downloadImage';
 import Analytics from './Analytics';
 import NotificationBanner from './NotificationBanner';
 
-const ADMIN_UI_VERSION = '3';
+const ADMIN_UI_VERSION = '4';
 
-function ImageLightbox({ src, onClose }) {
+function ImageLightbox({ src, orderId, imageIndex, onClose }) {
+  const [saving, setSaving] = useState(false);
+
   if (!src) return null;
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      const name = orderId
+        ? `order-${orderId}-grocery-${(imageIndex ?? 0) + 1}`
+        : 'grocery-photo';
+      await downloadGroceryImage(src, name);
+    } catch {
+      window.open(src, '_blank');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div className="image-lightbox" onClick={onClose} role="dialog" aria-label="Grocery photo">
       <button type="button" className="lightbox-close" onClick={onClose} aria-label="Close">✕</button>
       <img src={src} alt="Grocery item" onClick={(e) => e.stopPropagation()} />
+      <div className="lightbox-actions" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="btn btn-primary btn-sm" onClick={handleSave} disabled={saving}>
+          {saving ? 'Saving…' : '⬇️ Save to Gallery'}
+        </button>
+      </div>
     </div>
   );
 }
@@ -27,6 +50,12 @@ export default function AdminPanel() {
   const [newOrderAlert, setNewOrderAlert] = useState(null);
   const [activeTab, setActiveTab] = useState('orders');
   const [lightboxImage, setLightboxImage] = useState(null);
+  const [lightboxMeta, setLightboxMeta] = useState({ orderId: null, imageIndex: 0 });
+
+  function openImage(orderId, imageIndex, src) {
+    setLightboxMeta({ orderId, imageIndex });
+    setLightboxImage(src);
+  }
 
   const fetchOrders = useCallback(async (loginPin) => {
     const pinToUse = (loginPin ?? pin).trim();
@@ -55,6 +84,7 @@ export default function AdminPanel() {
       getAdminOrders(saved).then((data) => {
         setOrders(data);
         setAuthenticated(true);
+        ensurePushRegistered('admin', { adminPin: saved }).catch(() => {});
       }).catch(() => sessionStorage.removeItem('adminPin'));
     }
   }, []);
@@ -180,7 +210,7 @@ export default function AdminPanel() {
                   key={order.id}
                   order={order}
                   onDeliver={handleDeliver}
-                  onImageClick={setLightboxImage}
+                  onImageClick={openImage}
                 />
               ))}
             </section>
@@ -190,7 +220,7 @@ export default function AdminPanel() {
             <section className="admin-section">
               <h2>✅ Completed Orders ({delivered.length})</h2>
               {delivered.map((order) => (
-                <OrderCard key={order.id} order={order} onImageClick={setLightboxImage} />
+                <OrderCard key={order.id} order={order} onImageClick={openImage} />
               ))}
             </section>
           )}
@@ -201,13 +231,19 @@ export default function AdminPanel() {
 
       {error && <div className="error-msg">{error}</div>}
 
-      <ImageLightbox src={lightboxImage} onClose={() => setLightboxImage(null)} />
+      <ImageLightbox
+        src={lightboxImage}
+        orderId={lightboxMeta.orderId}
+        imageIndex={lightboxMeta.imageIndex}
+        onClose={() => setLightboxImage(null)}
+      />
     </div>
   );
 }
 
 function OrderCard({ order, onDeliver, onImageClick }) {
   const [billAmount, setBillAmount] = useState('');
+  const [downloadingAll, setDownloadingAll] = useState(false);
   const isPending = order.status !== 'delivered';
 
   function handleComplete(e) {
@@ -215,6 +251,28 @@ function OrderCard({ order, onDeliver, onImageClick }) {
     const amount = Number(billAmount);
     if (!amount || amount <= 0) return;
     onDeliver?.(order.id, amount);
+  }
+
+  async function handleDownloadAll(e) {
+    e.preventDefault();
+    if (!order.images?.length) return;
+    setDownloadingAll(true);
+    try {
+      await downloadAllOrderImages(order.id, order.images);
+    } catch {
+      /* user cancelled share */
+    } finally {
+      setDownloadingAll(false);
+    }
+  }
+
+  async function handleDownloadOne(e, img, index) {
+    e.stopPropagation();
+    try {
+      await downloadGroceryImage(img, `order-${order.id}-grocery-${index + 1}`);
+    } catch {
+      window.open(img, '_blank');
+    }
   }
 
   return (
@@ -267,17 +325,37 @@ function OrderCard({ order, onDeliver, onImageClick }) {
       </div>
       <div className="order-images">
         {order.images.map((img, i) => (
-          <button
-            key={i}
-            type="button"
-            className="order-image-btn"
-            onClick={() => onImageClick?.(img)}
-            aria-label={`View grocery photo ${i + 1}`}
-          >
-            <img src={img} alt={`Grocery ${i + 1}`} />
-          </button>
+          <div key={i} className="order-image-wrap">
+            <button
+              type="button"
+              className="order-image-btn"
+              onClick={() => onImageClick?.(order.id, i, img)}
+              aria-label={`View grocery photo ${i + 1}`}
+            >
+              <img src={img} alt={`Grocery ${i + 1}`} />
+            </button>
+            <button
+              type="button"
+              className="order-image-download"
+              onClick={(e) => handleDownloadOne(e, img, i)}
+              aria-label={`Save grocery photo ${i + 1}`}
+              title="Save to gallery"
+            >
+              ⬇️
+            </button>
+          </div>
         ))}
       </div>
+      {order.images.length > 0 && (
+        <button
+          type="button"
+          className="btn btn-outline btn-sm download-all-btn"
+          onClick={handleDownloadAll}
+          disabled={downloadingAll}
+        >
+          {downloadingAll ? 'Saving…' : `⬇️ Save all photos (${order.images.length})`}
+        </button>
+      )}
       {order.status === 'delivered' && order.estimatedAmount > 0 && (
         <p className="bill-amount-display">
           <strong>💰 Bill:</strong> ₹{order.estimatedAmount.toLocaleString('en-IN')}

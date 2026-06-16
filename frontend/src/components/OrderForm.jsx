@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createOrder, getStoreInfo } from '../api/client';
 import { requestNotificationPermission, showNotification } from '../utils/notifications';
-import { enableNotifications } from '../utils/pushNotifications';
+import { enableNotifications, ensurePushRegistered } from '../utils/pushNotifications';
 import { storeMapUrl } from '../utils/store';
 import NotificationBanner from './NotificationBanner';
 
@@ -78,7 +78,7 @@ export default function OrderForm() {
       );
 
       localStorage.setItem('customerPhone', phone);
-      enableNotifications('customer', { phone }).catch(() => {});
+      ensurePushRegistered('customer', { phone }).catch(() => {});
     } catch (err) {
       setError(err.message);
     } finally {

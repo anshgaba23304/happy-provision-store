@@ -105,6 +105,11 @@ public class PushNotificationService {
 
     private void sendToRole(String role, String title, String body, String url, String tag) {
         List<PushSubscriptionDoc> subs = repository.findByRole(role);
+        if (subs.isEmpty()) {
+            log.info("No push subscriptions for role '{}' — user should tap Enable in app", role);
+            return;
+        }
+        log.info("Sending push to {} {} subscriber(s)", subs.size(), role);
         for (PushSubscriptionDoc sub : subs) {
             sendOne(sub, title, body, url, tag);
         }
@@ -112,6 +117,10 @@ public class PushNotificationService {
 
     private void sendToCustomer(String phone, String title, String body, String url, String tag) {
         List<PushSubscriptionDoc> subs = repository.findByRoleAndPhone("customer", phone);
+        if (subs.isEmpty()) {
+            log.info("No push subscriptions for customer phone {} — enable on Track page", phone);
+            return;
+        }
         for (PushSubscriptionDoc sub : subs) {
             sendOne(sub, title, body, url, tag);
         }
@@ -132,6 +141,7 @@ public class PushNotificationService {
             ));
 
             service.send(new Notification(subscription, payload));
+            log.debug("Push sent to {}", sub.getEndpoint());
         } catch (Exception e) {
             log.warn("Push failed for {}: {}", sub.getEndpoint(), e.getMessage());
             if (e.getMessage() != null && (e.getMessage().contains("410") || e.getMessage().contains("404"))) {

@@ -28,6 +28,15 @@ public class PushController {
         return ResponseEntity.ok(Map.of("publicKey", pushNotificationService.getPublicKey()));
     }
 
+    @GetMapping("/status")
+    public ResponseEntity<Map<String, Object>> getStatus() {
+        boolean configured = pushNotificationService.isEnabled();
+        return ResponseEntity.ok(Map.of(
+                "serverConfigured", configured,
+                "enabled", configured
+        ));
+    }
+
     @PostMapping("/subscribe")
     public ResponseEntity<?> subscribe(@RequestBody PushSubscribeRequest request) {
         try {
