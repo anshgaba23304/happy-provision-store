@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: happy-provision-store
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    disk:
+      name: happy-store-data
+      mountPath: /app/persist
+      sizeGB: 1
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: STORE_DATA_PATH
+        value: /app/persist/data
+      - key: STORE_UPLOAD_PATH
+        value: /app/persist/uploads

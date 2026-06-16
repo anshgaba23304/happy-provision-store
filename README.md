@@ -1,86 +1,95 @@
 # Happy Provision Store
 
-A grocery ordering app and website for **Happy Provision Store**, Deoband, U.P.
+Grocery ordering website for **Happy Provision Store**, Deoband, U.P.
 
-## Features
+## Live website deploy
 
-- **Customer Order Form** — Name, phone, address, grocery photos
-- **WhatsApp Integration** — Orders open WhatsApp with order details
-- **Real-time Notifications** — Sound + browser notifications via Spring WebSocket (STOMP)
-- **Admin Panel** — View orders, mark as delivered
-- **Order Tracking** — Customers track orders by phone number
-- **Free Home Delivery** — Orders above ₹500 within 2 km
-- **PWA** — Install on phone (Add to Home Screen)
+The app runs as **one website**: React frontend + Spring Boot API on a single URL.
 
-## Store Details
+### Deploy on Render (free, recommended)
 
-- **Name:** Happy Provision Store
-- **Address:** Lajpat Nagar Railway Road Deoband U.P 247554
-- **Phone:** 9557237665 (testing)
-- **Email:** gaba23304@gmail.com
+1. Push code to GitHub: [anshgaba23304/happy-provision-store](https://github.com/anshgaba23304/happy-provision-store)
 
-## Tech Stack
+2. Go to [render.com](https://render.com) → **New** → **Blueprint** (or Web Service)
 
-- **Frontend:** React, Vite, PWA, STOMP WebSocket
-- **Backend:** Java 21, Spring Boot 3, Spring Data JPA, H2 Database
+3. Connect your GitHub repo `happy-provision-store`
 
-## Quick Start
+4. Render reads `render.yaml` automatically, or set manually:
+   - **Runtime:** Docker
+   - **Dockerfile path:** `./Dockerfile`
 
-### Prerequisites
+5. Click **Deploy** — you get a URL like:
+   `https://happy-provision-store.onrender.com`
 
-- Java 21+
-- Maven
-- Node.js 18+
+6. **Persistent disk** (in `render.yaml`) keeps orders & photos across restarts.
 
-### 1. Start Backend (Spring Boot)
+### Deploy with Docker (any server)
 
 ```bash
 cd happy-provision-store
-./run-backend.sh
+docker build -t happy-provision-store .
+docker run -p 8080:8080 \
+  -v happy-store-data:/app/persist \
+  -e STORE_DATA_PATH=/app/persist/data \
+  -e STORE_UPLOAD_PATH=/app/persist/uploads \
+  happy-provision-store
 ```
 
-API runs at **http://localhost:8080**
+Open **http://localhost:8080**
 
-### 2. Start Frontend
+### Build & run locally (as website)
 
 ```bash
-./run-frontend.sh
+cd happy-provision-store
+./deploy.sh
+cd backend && java -jar target/store-1.0.0.jar
+```
+
+Open **http://localhost:8081**
+
+---
+
+## Development (separate frontend + backend)
+
+**Backend:**
+```bash
+cd backend && mvn spring-boot:run
+```
+
+**Frontend:**
+```bash
+cd frontend && npm run dev
 ```
 
 Open **http://localhost:5173**
 
-### 3. Admin Access
+---
 
-- Go to **Admin** tab
-- Default PIN: `1234`
-- Change in `backend/src/main/resources/application.properties` → `app.admin-pin`
+## Admin
 
-## Configuration
+- URL: `/admin`
+- Default PIN: `1234` (change in `application.properties`)
+
+## Store config
 
 Edit `backend/src/main/resources/application.properties`:
 
 ```properties
 app.store.phones=9557237665
 app.admin-pin=1234
-app.store.free-delivery-min-amount=500
-app.store.free-delivery-max-km=2
 ```
 
-## API Endpoints
+## Tech stack
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/store` | Store info |
-| POST | `/api/orders` | Create order (multipart) |
-| GET | `/api/orders?phone=` | Track by phone |
-| GET | `/api/orders?adminPin=` | All orders (admin) |
-| PATCH | `/api/orders/{id}/deliver` | Mark delivered |
-| POST | `/api/check-delivery` | Check free delivery |
-| WS | `/ws` | STOMP WebSocket for live notifications |
+- **Frontend:** React, Vite, PWA
+- **Backend:** Java 21, Spring Boot 3, H2
+- **Deploy:** Docker, Render
 
-## How Track Order Works
+## Data storage
 
-1. Customer places order with their phone number
-2. On **Track** page, enter the same 10-digit phone number
-3. All orders linked to that number are shown with status
-4. When admin marks **Delivered**, customer gets a notification + sound automatically
+| Data | Path |
+|------|------|
+| Orders (database) | `STORE_DATA_PATH` → default `./data/` |
+| Grocery photos | `STORE_UPLOAD_PATH` → default `./uploads/` |
+
+Back up these folders before redeploying without persistent disk.

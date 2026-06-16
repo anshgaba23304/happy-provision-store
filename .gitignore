@@ -3,6 +3,8 @@ uploads/*
 !uploads/.gitkeep
 data/
 backend/target/
+backend/src/main/resources/static/*
+!backend/src/main/resources/static/.gitkeep
 dist/
 .DS_Store
 *.log

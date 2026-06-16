@@ -7,6 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      minify: false,
       includeAssets: ['favicon.svg', 'logo.svg', 'notification.mp3'],
       manifest: {
         name: 'Happy Provision Store',
@@ -26,6 +27,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        mode: 'development',
         globPatterns: ['**/*.{js,css,html,ico,svg,mp3}'],
       },
     }),
