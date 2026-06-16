@@ -1,5 +1,6 @@
 package com.happyprovision.store.config;
 
+import com.happyprovision.store.dto.StoreContactDto;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,6 +15,7 @@ public class StoreProperties {
     private String address;
     private String email;
     private String phones;
+    private String contacts;
     private double lat;
     private double lng;
     private double freeDeliveryMinAmount;
@@ -31,11 +33,38 @@ public class StoreProperties {
     public String getPhones() { return phones; }
     public void setPhones(String phones) { this.phones = phones; }
 
+    public String getContacts() { return contacts; }
+    public void setContacts(String contacts) { this.contacts = contacts; }
+
     public List<String> getPhoneList() {
+        if (contacts != null && !contacts.isBlank()) {
+            return getContactList().stream().map(StoreContactDto::getPhone).toList();
+        }
         return Arrays.stream(phones.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
+                .map(this::normalizePhone)
                 .toList();
+    }
+
+    public List<StoreContactDto> getContactList() {
+        String source = (contacts != null && !contacts.isBlank()) ? contacts : phones;
+        return Arrays.stream(source.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(entry -> {
+                    String[] parts = entry.split(":", 2);
+                    StoreContactDto contact = new StoreContactDto();
+                    contact.setPhone(normalizePhone(parts[0]));
+                    contact.setName(parts.length > 1 ? parts[1].trim() : "");
+                    return contact;
+                })
+                .toList();
+    }
+
+    private String normalizePhone(String value) {
+        String digits = value.replaceAll("\\D", "");
+        return digits.length() >= 10 ? digits.substring(digits.length() - 10) : digits;
     }
 
     public double getLat() { return lat; }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createOrder, getStoreInfo } from '../api/client';
 import { requestNotificationPermission, showNotification } from '../utils/notifications';
+import { storeMapUrl } from '../utils/store';
 
 export default function OrderForm() {
   const [store, setStore] = useState(null);
@@ -109,7 +110,16 @@ export default function OrderForm() {
                 Visit <strong>Happy Provision Store</strong> to collect your order.
                 You can <strong>add more items</strong> when you come!
               </p>
-              {store && <p className="store-pickup-addr">📍 {store.address}</p>}
+              {store && (
+                <>
+                  <p className="store-pickup-addr">📍 {store.address}</p>
+                  {storeMapUrl(store) && (
+                    <a href={storeMapUrl(store)} target="_blank" rel="noreferrer" className="map-link-btn">
+                      🗺️ Open in Google Maps
+                    </a>
+                  )}
+                </>
+              )}
             </>
           ) : (
             <>
@@ -169,6 +179,11 @@ export default function OrderForm() {
               <div>
                 <strong>Collect from our store</strong>
                 <p>{store.address}</p>
+                {storeMapUrl(store) && (
+                  <a href={storeMapUrl(store)} target="_blank" rel="noreferrer" className="map-link-btn">
+                    🗺️ Open in Google Maps
+                  </a>
+                )}
                 <p className="pickup-hint">💡 Best for everyday shopping — visit us and add more items!</p>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getStoreInfo } from '../api/client';
+import { formatPhone, phoneTel, storeContacts, storeMapUrl } from '../utils/store';
 
 const STEPS = [
   { num: '1', icon: '📸', title: 'Snap Photos', desc: 'Take pictures of items you need', color: 'step-teal' },
@@ -106,6 +107,24 @@ export default function Home() {
                   <div>
                     <strong>Store Address</strong>
                     <p>{store.address}</p>
+                    {storeMapUrl(store) && (
+                      <a href={storeMapUrl(store)} target="_blank" rel="noreferrer" className="map-link-btn">
+                        🗺️ Open in Google Maps
+                      </a>
+                    )}
+                  </div>
+                </div>
+                <div className="visit-info-item">
+                  <span className="visit-info-icon">📞</span>
+                  <div>
+                    <strong>Call Us</strong>
+                    <div className="contact-list">
+                      {storeContacts(store).map((c) => (
+                        <a key={c.phone} href={phoneTel(c.phone)} className="contact-link">
+                          {formatPhone(c.phone)}{c.name ? ` ${c.name}` : ''}
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <div className="visit-info-item">
@@ -139,20 +158,24 @@ export default function Home() {
                       <small>Upload grocery photos</small>
                     </span>
                   </Link>
-                  <a href={`tel:+91${store.phones[0]}`} className="visit-action-btn visit-action-call">
-                    <span className="visit-action-icon">📞</span>
-                    <span className="visit-action-text">
-                      <strong>Call {store.phones[0]}</strong>
-                      <small>Talk to our team</small>
-                    </span>
-                  </a>
+                  {storeContacts(store).map((c) => (
+                    <a key={c.phone} href={phoneTel(c.phone)} className="visit-action-btn visit-action-call">
+                      <span className="visit-action-icon">📞</span>
+                      <span className="visit-action-text">
+                        <strong>{formatPhone(c.phone)}</strong>
+                        <small>{c.name || 'Call us'}</small>
+                      </span>
+                    </a>
+                  ))}
                 </div>
               </div>
 
-              <div className="visit-map-hint">
-                <span>🗺️</span>
-                <p>Near Lajpat Nagar Railway Road, Deoband</p>
-              </div>
+              {storeMapUrl(store) && (
+                <a href={storeMapUrl(store)} target="_blank" rel="noreferrer" className="visit-map-hint visit-map-link">
+                  <span>🗺️</span>
+                  <p>Get directions on Google Maps</p>
+                </a>
+              )}
             </div>
           </div>
         </section>

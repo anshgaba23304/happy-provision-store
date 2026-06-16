@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getStoreInfo } from '../api/client';
+import { formatPhone, phoneTel, storeContacts, storeMapUrl } from '../utils/store';
 
 export default function Footer() {
   const [store, setStore] = useState(null);
@@ -17,12 +18,19 @@ export default function Footer() {
           <img src="/logo.svg" alt="Happy Provision Store" className="footer-logo" />
           <h4>{store.name}</h4>
           <p>📍 {store.address}</p>
+          {storeMapUrl(store) && (
+            <p>
+              <a href={storeMapUrl(store)} target="_blank" rel="noreferrer">🗺️ Google Maps</a>
+            </p>
+          )}
         </div>
         <div>
           <h4>Contact Us</h4>
-          {store.phones.map((p) => (
-            <p key={p}>
-              <a href={`tel:+91${p}`}>📞 {p}</a>
+          {storeContacts(store).map((c) => (
+            <p key={c.phone}>
+              <a href={phoneTel(c.phone)}>
+                📞 {formatPhone(c.phone)}{c.name ? ` ${c.name}` : ''}
+              </a>
             </p>
           ))}
           <p>

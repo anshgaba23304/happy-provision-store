@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -45,11 +47,27 @@ public class OrderService {
         info.setAddress(storeProperties.getAddress());
         info.setEmail(storeProperties.getEmail());
         info.setPhones(storeProperties.getPhoneList());
+        info.setContacts(storeProperties.getContactList());
+        info.setMapUrl(buildMapUrl());
         info.setLat(storeProperties.getLat());
         info.setLng(storeProperties.getLng());
         info.setFreeDeliveryMinAmount(storeProperties.getFreeDeliveryMinAmount());
         info.setFreeDeliveryMaxKm(storeProperties.getFreeDeliveryMaxKm());
         return info;
+    }
+
+    private String buildMapUrl() {
+        double lat = storeProperties.getLat();
+        double lng = storeProperties.getLng();
+        if (lat != 0 || lng != 0) {
+            return String.format("https://www.google.com/maps/search/?api=1&query=%s,%s", lat, lng);
+        }
+        String address = storeProperties.getAddress();
+        if (address != null && !address.isBlank()) {
+            return "https://www.google.com/maps/search/?api=1&query="
+                    + URLEncoder.encode(address, StandardCharsets.UTF_8);
+        }
+        return "https://www.google.com/maps";
     }
 
     public OrderResponse createOrder(

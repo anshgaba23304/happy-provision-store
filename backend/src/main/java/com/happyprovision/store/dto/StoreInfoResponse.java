@@ -1,5 +1,6 @@
 package com.happyprovision.store.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StoreInfoResponse {
@@ -7,7 +8,9 @@ public class StoreInfoResponse {
     private String name;
     private String address;
     private String email;
-    private List<String> phones;
+    private List<String> phones = new ArrayList<>();
+    private List<StoreContactDto> contacts = new ArrayList<>();
+    private String mapUrl;
     private double lat;
     private double lng;
     private double freeDeliveryMinAmount;
@@ -24,6 +27,12 @@ public class StoreInfoResponse {
 
     public List<String> getPhones() { return phones; }
     public void setPhones(List<String> phones) { this.phones = phones; }
+
+    public List<StoreContactDto> getContacts() { return contacts; }
+    public void setContacts(List<StoreContactDto> contacts) { this.contacts = contacts; }
+
+    public String getMapUrl() { return mapUrl; }
+    public void setMapUrl(String mapUrl) { this.mapUrl = mapUrl; }
 
     public double getLat() { return lat; }
     public void setLat(double lat) { this.lat = lat; }
