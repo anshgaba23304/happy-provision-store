@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createOrder, getStoreInfo } from '../api/client';
 import { requestNotificationPermission, showNotification } from '../utils/notifications';
+import { enableNotifications } from '../utils/pushNotifications';
 import { storeMapUrl } from '../utils/store';
+import NotificationBanner from './NotificationBanner';
 
 export default function OrderForm() {
   const [store, setStore] = useState(null);
@@ -76,6 +78,7 @@ export default function OrderForm() {
       );
 
       localStorage.setItem('customerPhone', phone);
+      enableNotifications('customer', { phone }).catch(() => {});
     } catch (err) {
       setError(err.message);
     } finally {
@@ -145,6 +148,8 @@ export default function OrderForm() {
           <p className="page-sub">Upload grocery photos — pick up at store or request bulk delivery</p>
         </div>
       </div>
+
+      <NotificationBanner role="customer" phone={phone} />
 
       <form onSubmit={handleSubmit} className="order-form">
         <div className="form-section">

@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { getAdminOrders, markDelivered } from '../api/client';
 import { useSocket } from '../hooks/useSocket';
 import { requestNotificationPermission, showNotification } from '../utils/notifications';
+import { enableNotifications } from '../utils/pushNotifications';
 import Analytics from './Analytics';
+import NotificationBanner from './NotificationBanner';
 
 const ADMIN_UI_VERSION = '3';
 
@@ -35,6 +37,7 @@ export default function AdminPanel() {
       setOrders(data);
       setAuthenticated(true);
       sessionStorage.setItem('adminPin', pinToUse);
+      enableNotifications('admin', { adminPin: pinToUse }).catch(() => {});
     } catch {
       sessionStorage.removeItem('adminPin');
       setError('Invalid PIN');
@@ -62,7 +65,8 @@ export default function AdminPanel() {
     showNotification(
       '🔔 New Order!',
       `Order #${order.id} from ${order.customerName} - ${order.customerPhone}`,
-      () => window.focus()
+      () => window.focus(),
+      `admin-new-${order.id}`,
     );
     setTimeout(() => setNewOrderAlert(null), 5000);
   }, []);
@@ -153,6 +157,7 @@ export default function AdminPanel() {
         <Analytics pin={savedPin} />
       ) : (
         <>
+          <NotificationBanner role="admin" adminPin={savedPin} />
           <div className="admin-stats">
             <div className="stat-card pending-stat">
               <span className="stat-num">{pending.length}</span>

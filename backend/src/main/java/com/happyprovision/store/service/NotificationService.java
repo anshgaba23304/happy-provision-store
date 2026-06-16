@@ -15,9 +15,11 @@ public class NotificationService {
 
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
     private final ObjectMapper objectMapper;
+    private final PushNotificationService pushNotificationService;
 
-    public NotificationService(ObjectMapper objectMapper) {
+    public NotificationService(ObjectMapper objectMapper, PushNotificationService pushNotificationService) {
         this.objectMapper = objectMapper;
+        this.pushNotificationService = pushNotificationService;
     }
 
     public SseEmitter subscribe() {
@@ -31,10 +33,12 @@ public class NotificationService {
 
     public void notifyNewOrder(OrderResponse order) {
         broadcast("new-order", order);
+        pushNotificationService.notifyAdminsNewOrder(order);
     }
 
     public void notifyOrderDelivered(OrderResponse order) {
         broadcast("order-delivered", order);
+        pushNotificationService.notifyCustomerOrderReady(order);
     }
 
     private void broadcast(String event, OrderResponse order) {

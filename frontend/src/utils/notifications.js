@@ -43,14 +43,16 @@ export async function requestNotificationPermission() {
   return false;
 }
 
-export function showNotification(title, body, onClick) {
+export function showNotification(title, body, onClick, tag = 'happy-store') {
   if (Notification.permission === 'granted') {
     const n = new Notification(title, {
       body,
-      icon: '/logo.svg',
-      badge: '/logo.svg',
+      icon: '/apple-touch-icon.png',
+      badge: '/apple-touch-icon.png',
       vibrate: [200, 100, 200],
-      tag: 'happy-store',
+      tag,
+      renotify: true,
+      requireInteraction: true,
     });
     if (onClick) n.onclick = onClick;
     playNotificationSound();

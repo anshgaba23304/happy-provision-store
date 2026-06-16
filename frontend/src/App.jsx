@@ -6,6 +6,20 @@ import OrderForm from './components/OrderForm';
 import TrackOrder from './components/TrackOrder';
 import AdminPanel from './components/AdminPanel';
 import InstallPrompt from './components/InstallPrompt';
+import { useCustomerOrderAlerts } from './hooks/useCustomerOrderAlerts';
+
+function AppRoutes() {
+  useCustomerOrderAlerts();
+
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/order" element={<OrderForm />} />
+      <Route path="/track" element={<TrackOrder />} />
+      <Route path="/admin" element={<AdminPanel />} />
+    </Routes>
+  );
+}
 
 export default function App() {
   return (
@@ -13,12 +27,7 @@ export default function App() {
       <InstallPrompt />
       <Header />
       <main className="main">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/order" element={<OrderForm />} />
-          <Route path="/track" element={<TrackOrder />} />
-          <Route path="/admin" element={<AdminPanel />} />
-        </Routes>
+        <AppRoutes />
       </main>
       <Footer />
     </div>

@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { getOrdersByPhone } from '../api/client';
 import { useSocket } from '../hooks/useSocket';
 import { showNotification, requestNotificationPermission } from '../utils/notifications';
+import { enableNotifications } from '../utils/pushNotifications';
+import NotificationBanner from './NotificationBanner';
 
 const TRACK_STEPS = [
   { key: 'placed', label: 'Order Placed', icon: '📝' },
@@ -53,9 +55,14 @@ export default function TrackOrder() {
   const onOrderDelivered = useCallback((order) => {
     if (order.customerPhone?.includes(phone.slice(-10)) || order.customerPhone === phone) {
       setOrders((prev) => prev.map((o) => (o.id === order.id ? order : o)));
+      const isDelivery = order.orderType === 'delivery';
       showNotification(
-        '🎉 Order Delivered!',
-        `Your order #${order.id} has been delivered. Thank you for shopping with us!`
+        isDelivery ? '🎉 Order Delivered!' : '✅ Ready for Pickup!',
+        isDelivery
+          ? `Your order #${order.id} has been delivered. Thank you!`
+          : `Order #${order.id} is ready — pick up at the store.`,
+        undefined,
+        `customer-ready-${order.id}`,
       );
     }
   }, [phone]);
@@ -65,6 +72,7 @@ export default function TrackOrder() {
   function handleSearch(e) {
     e.preventDefault();
     localStorage.setItem('customerPhone', phone);
+    enableNotifications('customer', { phone }).catch(() => {});
     fetchOrders(phone);
   }
 
@@ -83,9 +91,11 @@ export default function TrackOrder() {
         <ol>
           <li><strong>Enter your phone number</strong> — the same one you used when placing the order</li>
           <li><strong>See all your orders</strong> — with status: Packing Groceries or Delivered</li>
-          <li><strong>Get notified automatically</strong> — when we mark your order as delivered, you&apos;ll hear a sound & get a notification (allow notifications when asked)</li>
+          <li><strong>Get notified on your phone</strong> — tap Enable above; you&apos;ll get a pop-up when your order is ready (works even if app is in background on iPhone after installing to home screen)</li>
         </ol>
       </div>
+
+      <NotificationBanner role="customer" phone={phone} />
 
       <form onSubmit={handleSearch} className="track-form">
         <div className="track-input-wrap">

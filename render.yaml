@@ -11,3 +11,9 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        value: mailto:gaba23304@gmail.com

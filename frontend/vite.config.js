@@ -6,7 +6,11 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
       minify: false,
       includeAssets: ['favicon.svg', 'logo.svg', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'notification.mp3'],
       manifest: {
@@ -32,23 +36,11 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
-        skipWaiting: true,
-        clientsClaim: true,
-        mode: 'development',
-        globPatterns: ['**/*.{js,css,html,ico,svg,mp3}'],
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api/],
-        runtimeCaching: [
-          {
-            urlPattern: ({ request }) => request.mode === 'navigate',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'pages',
-              expiration: { maxEntries: 5, maxAgeSeconds: 60 * 60 },
-            },
-          },
-        ],
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,svg,mp3,png}'],
+      },
+      devOptions: {
+        enabled: true,
       },
     }),
   ],
