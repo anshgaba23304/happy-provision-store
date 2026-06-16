@@ -10,7 +10,7 @@ const STEPS = [
 
 const FEATURES = [
   { icon: '📷', title: 'Photo Orders', desc: 'Snap your list — no typing needed!', tint: 'tint-teal' },
-  { icon: '🚚', title: 'Free Delivery', desc: 'Orders above ₹500 within 2 km!', tint: 'tint-mango' },
+  { icon: '🚚', title: 'Bulk Delivery', desc: 'Large orders delivered within 2 km', tint: 'tint-mango' },
   { icon: '🔔', title: 'Live Updates', desc: 'Track your order in real time', tint: 'tint-violet' },
   { icon: '📊', title: 'Store Dashboard', desc: 'Orders & sales analytics for admin', tint: 'tint-rose' },
 ];
@@ -51,7 +51,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="hero-chips">
-            <span className="chip">🚚 Free delivery ₹500+</span>
+            <span className="chip">📦 Bulk delivery only</span>
             <span className="chip">📍 Within 2 km</span>
             <span className="chip">🔔 Live order tracking</span>
           </div>

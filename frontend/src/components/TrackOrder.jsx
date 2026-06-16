@@ -127,10 +127,8 @@ export default function TrackOrder() {
             <OrderTimeline status={order.status} />
 
             <div className="order-meta">
-              <p>{order.orderType === 'delivery' ? '🚚 Home Delivery' : '🏪 Pick up at Store'}</p>
+              <p>{order.orderType === 'delivery' ? '📦 Bulk delivery' : '🏪 Pick up at Store'}</p>
               <p>📅 Placed: {new Date(order.createdAt).toLocaleString('en-IN')}</p>
-              {order.estimatedAmount > 0 && <p>💰 ₹{order.estimatedAmount}</p>}
-              {order.freeDelivery && <p className="free-tag">🚚 Free Delivery</p>}
               {order.deliveredAt && (
                 <p className="delivered-time">
                   ✅ {order.orderType === 'delivery' ? 'Delivered' : 'Ready for pickup'}: {new Date(order.deliveredAt).toLocaleString('en-IN')}

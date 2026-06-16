@@ -83,9 +83,7 @@ public class OrderService {
             }
         }
 
-        double amount = parseAmount(estimatedAmount);
-        boolean freeDelivery = "delivery".equals(type)
-                && amount >= storeProperties.getFreeDeliveryMinAmount();
+        boolean isBulkDelivery = "delivery".equals(type);
 
         List<String> imageUrls = new ArrayList<>();
         for (MultipartFile file : images) {
@@ -97,9 +95,9 @@ public class OrderService {
         order.setCustomerName(customerName.trim());
         order.setCustomerPhone(customerPhone.trim());
         order.setAddress(address != null ? address.trim() : "");
-        order.setEstimatedAmount(amount);
+        order.setEstimatedAmount(0);
         order.setDistanceKm(null);
-        order.setFreeDelivery(freeDelivery);
+        order.setFreeDelivery(isBulkDelivery);
         order.setOrderType(type);
         order.setImages(imageUrls);
         order.setStatus("pending");

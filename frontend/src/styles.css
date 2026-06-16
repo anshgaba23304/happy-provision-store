@@ -1086,6 +1086,17 @@ body {
 .btn-send { width: 100%; margin-top: 0.75rem; }
 
 /* ─── Order type toggle ─── */
+.order-type-hint {
+  font-size: 0.9rem;
+  color: var(--slate-muted);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.order-type-hint strong {
+  color: var(--teal-dark);
+}
+
 .order-type-toggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1169,6 +1180,34 @@ body {
 .pickup-hint {
   margin-top: 0.5rem !important;
   color: var(--mango-dark) !important;
+  font-weight: 700 !important;
+}
+
+.bulk-delivery-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--mango-pale) 0%, var(--white) 100%);
+  border: 1px solid #FFD8A8;
+}
+
+.bulk-delivery-card strong {
+  color: var(--mango-dark);
+  font-size: 0.95rem;
+}
+
+.bulk-delivery-card p {
+  font-size: 0.88rem;
+  color: var(--slate);
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.bulk-delivery-note {
+  color: var(--teal-dark) !important;
   font-weight: 700 !important;
 }
 

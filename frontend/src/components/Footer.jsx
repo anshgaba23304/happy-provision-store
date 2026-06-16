@@ -30,8 +30,9 @@ export default function Footer() {
           </p>
         </div>
         <div>
-          <h4>Free Delivery</h4>
-          <p>Orders above ₹{store.freeDeliveryMinAmount} within {store.freeDeliveryMaxKm} km</p>
+          <h4>Delivery Policy</h4>
+          <p>🏪 Regular orders — pick up at store</p>
+          <p>📦 Bulk orders — home delivery within {store.freeDeliveryMaxKm} km</p>
         </div>
       </div>
       <p className="footer-copy">© {new Date().getFullYear()} Happy Provision Store. All rights reserved.</p>

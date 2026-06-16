@@ -195,14 +195,13 @@ function OrderCard({ order, onDeliver, onImageClick }) {
       </div>
       <div className="order-details">
         <p>
-          <strong>{order.orderType === 'delivery' ? '🚚' : '🏪'}</strong>
-          {order.orderType === 'delivery' ? ' Home Delivery' : ' Pick up at Store'}
+          <strong>{order.orderType === 'delivery' ? '📦' : '🏪'}</strong>
+          {order.orderType === 'delivery' ? ' Bulk order — Home Delivery' : ' Pick up at Store'}
         </p>
         <p><strong>👤</strong> {order.customerName}</p>
         <p><strong>📞</strong> <a href={`tel:${order.customerPhone}`}>{order.customerPhone}</a></p>
         {order.address && order.orderType === 'delivery' && <p><strong>📍</strong> {order.address}</p>}
-        {order.estimatedAmount > 0 && <p><strong>💰</strong> ₹{order.estimatedAmount}</p>}
-        {order.freeDelivery && <p className="free-tag">🚚 FREE Delivery (₹500+)</p>}
+        {order.orderType === 'delivery' && <p className="free-tag">📦 Bulk delivery</p>}
         <p><strong>📅</strong> {new Date(order.createdAt).toLocaleString('en-IN')}</p>
       </div>
       <div className="order-images">

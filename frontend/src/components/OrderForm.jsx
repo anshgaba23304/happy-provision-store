@@ -8,7 +8,6 @@ export default function OrderForm() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [amount, setAmount] = useState('');
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [orderType, setOrderType] = useState('pickup');
@@ -18,8 +17,6 @@ export default function OrderForm() {
 
   const isPickup = orderType === 'pickup';
   const isDelivery = orderType === 'delivery';
-  const amountNum = parseFloat(amount) || 0;
-  const mayGetFreeDelivery = isDelivery && amountNum >= 500;
 
   useEffect(() => {
     getStoreInfo().then(setStore).catch(() => {});
@@ -66,7 +63,7 @@ export default function OrderForm() {
       formData.append('customerPhone', phone);
       formData.append('orderType', orderType);
       formData.append('address', isDelivery ? address : '');
-      formData.append('estimatedAmount', amount || '0');
+      formData.append('estimatedAmount', '0');
       images.forEach((img) => formData.append('images', img));
 
       const order = await createOrder(formData);
@@ -90,7 +87,6 @@ export default function OrderForm() {
     setName('');
     setPhone('');
     setAddress('');
-    setAmount('');
     setImages([]);
     setPreviews([]);
     setOrderType('pickup');
@@ -117,11 +113,8 @@ export default function OrderForm() {
             </>
           ) : (
             <>
-              <div className="delivery-badge">🚚 Home Delivery</div>
-              {success.freeDelivery && (
-                <p className="free-tag">🎉 FREE home delivery (₹500+ within 2 km)</p>
-              )}
-              <p>We&apos;ll pack your groceries and deliver to your address.</p>
+              <div className="delivery-badge">📦 Bulk order — home delivery</div>
+              <p>We&apos;ll pack your bulk grocery order and deliver within 2 km of our store.</p>
             </>
           )}
           <div className="success-actions">
@@ -139,13 +132,16 @@ export default function OrderForm() {
         <span className="page-icon">📸</span>
         <div>
           <h1>Place Your Order</h1>
-          <p className="page-sub">Upload photos of groceries — pick up at store or get delivery</p>
+          <p className="page-sub">Upload grocery photos — pick up at store or request bulk delivery</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="order-form">
         <div className="form-section">
           <h3 className="form-section-title">🛍️ How do you want your order?</h3>
+          <p className="order-type-hint">
+            Regular orders → pick up at store. Home delivery is only for <strong>bulk grocery orders</strong>.
+          </p>
           <div className="order-type-toggle">
             <button
               type="button"
@@ -154,16 +150,16 @@ export default function OrderForm() {
             >
               <span className="toggle-icon">🏪</span>
               <span className="toggle-label">Pick up at Store</span>
-              <span className="toggle-desc">Visit us &amp; add more items</span>
+              <span className="toggle-desc">For regular &amp; small orders</span>
             </button>
             <button
               type="button"
               className={`toggle-option ${isDelivery ? 'active' : ''}`}
               onClick={() => switchOrderType('delivery')}
             >
-              <span className="toggle-icon">🚚</span>
-              <span className="toggle-label">Home Delivery</span>
-              <span className="toggle-desc">We deliver to your door</span>
+              <span className="toggle-icon">📦</span>
+              <span className="toggle-label">Bulk Order — Delivery</span>
+              <span className="toggle-desc">Large grocery list · within 2 km</span>
             </button>
           </div>
 
@@ -173,8 +169,19 @@ export default function OrderForm() {
               <div>
                 <strong>Collect from our store</strong>
                 <p>{store.address}</p>
-                <p className="pickup-hint">💡 Pre-order now — add more groceries when you visit!</p>
+                <p className="pickup-hint">💡 Best for everyday shopping — visit us and add more items!</p>
               </div>
+            </div>
+          )}
+
+          {isDelivery && (
+            <div className="bulk-delivery-card">
+              <strong>📦 Bulk order delivery</strong>
+              <p>
+                Choose this only if you have a <strong>large grocery order</strong> (many items / heavy shopping).
+                For a few items, please select <strong>pick up at store</strong> instead.
+              </p>
+              <p className="bulk-delivery-note">🚚 Delivery available within 2 km of our store (Deoband)</p>
             </div>
           )}
         </div>
@@ -202,31 +209,10 @@ export default function OrderForm() {
                 rows={3}
                 required
               />
-              <small>Write your full address with landmark so we can find you easily</small>
+              <small>Required for bulk order home delivery</small>
             </div>
           )}
         </div>
-
-        {isDelivery && (
-          <div className="form-section">
-            <h3 className="form-section-title">🚚 Home Delivery</h3>
-            <div className="form-group">
-              <label>Estimated Amount (₹)</label>
-              <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Approx. total e.g. 600" min="0" />
-              <small>🎁 Free delivery on orders above ₹500 within 2 km (confirmed by store)</small>
-            </div>
-            {mayGetFreeDelivery && (
-              <div className="delivery-status eligible">
-                🎉 Your order may qualify for FREE home delivery!
-              </div>
-            )}
-            {isDelivery && amountNum > 0 && amountNum < 500 && (
-              <div className="delivery-status not-eligible">
-                Add ₹{500 - amountNum} more for free delivery (min ₹500, within 2 km)
-              </div>
-            )}
-          </div>
-        )}
 
         <div className="form-section">
           <h3 className="form-section-title">🛒 Grocery Photos *</h3>
