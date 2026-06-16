@@ -21,7 +21,7 @@ The app runs as **one website**: React frontend + Spring Boot API on a single UR
 5. Click **Deploy** — you get a URL like:
    `https://happy-provision-store.onrender.com`
 
-6. **Persistent disk** (in `render.yaml`) keeps orders & photos across restarts.
+> **Free tier note:** Persistent disks are not available on Render’s free plan. Orders and photos are kept while the app is running, but may be **lost when Render restarts or redeploys** the service. For permanent storage, upgrade to a paid plan and add a disk (see `render-paid.yaml.example`).
 
 ### Deploy with Docker (any server)
 
